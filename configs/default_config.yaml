@@ -18,7 +18,7 @@ training:
   target_update: 100
   memory_size: 10000
   num_episodes: 1000
-
+  action_dim: 4
 # 环境配置
 environment:
   max_tasks: 50

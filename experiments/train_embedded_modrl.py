@@ -82,12 +82,17 @@ class MODRLTrainer:
 
     def _initialize_agent(self) -> D3QNAgent:
         """初始化智能体"""
-        training_config = self.config['training']
+        training_config = self.config['training'].copy()
+
+        # 从模型配置中获取action_dim并添加到训练配置
+        training_config['action_dim'] = self.config['model']['num_actions']
+
         agent = D3QNAgent(self.model, self.target_model, training_config)
 
         print(f"✅ D3QN智能体初始化完成")
         print(f"   记忆容量: {training_config.get('memory_size', 10000)}")
         print(f"   批次大小: {training_config.get('batch_size', 32)}")
+        print(f"   动作维度: {training_config['action_dim']}")
 
         return agent
 

@@ -106,8 +106,8 @@ class D3QNAgent(BaseAgent):
             config: 训练配置
         """
         # 估计状态和动作维度
+        action_dim = config.get('action_dim', self._estimate_action_dim(model))
         state_dim = self._estimate_state_dim(model)
-        action_dim = self._estimate_action_dim(model)
 
         super().__init__(state_dim, action_dim, config)
 
@@ -260,6 +260,21 @@ class D3QNAgent(BaseAgent):
                 next_q_values = self.target_model(next_states).gather(1, next_actions)
 
             target_q_values = rewards.unsqueeze(1) + (self.gamma * next_q_values * ~dones.unsqueeze(1))
+            # 计算TD误差和损失
+            td_errors = target_q_values - current_q_values
+            loss = (td_errors.pow(2) * weights.unsqueeze(1)).mean()
+
+            # 反向传播和优化
+            self.optimizer.zero_grad()
+            loss.backward()
+            torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=10.0)
+            self.optimizer.step()
+
+            # 更新优先级
+            priorities = td_errors.abs().detach().cpu().numpy().flatten()
+            self.memory.update_priorities(indices, priorities)
+
+            return loss.item()
 
         #
     def _unpack_batch(self, batch: List[Transition]) -> Tuple:

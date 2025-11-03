@@ -130,12 +130,29 @@ class LightweightSetEncoder(nn.Module):
             nn.ReLU()
         )
 
-        self.aggregator = nn.AdaptiveAvgPool1d(1)
+        # 使用全局平均池化代替 AdaptiveAvgPool1d
+        # 这样可以正确处理批次维度
 
     def forward(self, features: torch.Tensor) -> torch.Tensor:
-        encoded = self.encoder(features)
-        # 集合聚合
-        pooled = self.aggregator(encoded.transpose(0, 1)).squeeze()
+        """
+        Args:
+            features: (batch_size, num_hardware, input_dim) 或 (num_hardware, input_dim)
+        Returns:
+            pooled: (batch_size, hidden_dim) 或 (hidden_dim,)
+        """
+        # 编码每个硬件的特征
+        encoded = self.encoder(features)  # (batch, num_hardware, hidden_dim)
+
+        # 在硬件维度上进行平均池化
+        if encoded.dim() == 3:
+            # 批次模式: (batch, num_hardware, hidden_dim) -> (batch, hidden_dim)
+            pooled = encoded.mean(dim=1)
+        elif encoded.dim() == 2:
+            # 单样本模式: (num_hardware, hidden_dim) -> (hidden_dim,)
+            pooled = encoded.mean(dim=0)
+        else:
+            raise ValueError(f"Unexpected tensor dimension: {encoded.dim()}")
+
         return pooled
 
 

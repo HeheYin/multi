@@ -41,7 +41,10 @@ class MODRLTrainer:
             num_actions=model_config['num_actions']
         )
 
-        self.agent = D3QNAgent(self.model, self.target_model, self.config['training'])
+        training_config = self.config['training'].copy()
+        training_config['action_dim'] = model_config['num_actions']
+
+        self.agent = D3QNAgent(self.model, self.target_model, training_config)
 
     def train(self):
         """训练主循环"""
