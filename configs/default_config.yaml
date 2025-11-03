@@ -1,0 +1,46 @@
+# 模型配置
+model:
+  node_feature_dim: 10
+  hardware_feature_dim: 8
+  hidden_dim: 64
+  output_dim: 32
+  num_hardware: 4
+  num_actions: 4
+
+# 训练配置
+training:
+  batch_size: 32
+  learning_rate: 1e-4
+  gamma: 0.99
+  epsilon_start: 1.0
+  epsilon_end: 0.01
+  epsilon_decay: 0.995
+  target_update: 100
+  memory_size: 10000
+  num_episodes: 1000
+
+# 环境配置
+environment:
+  max_tasks: 50
+  max_hardware: 4
+  time_slot: 1.0  # 时间片长度(ms)
+
+# 奖励权重配置
+reward_weights:
+  makespan: 0.4
+  load_balance: 0.2
+  energy: 0.3
+  reliability: 0.1
+
+# 硬件配置
+hardware:
+  types: ["CPU", "GPU", "FPGA", "MCU"]
+  capabilities:
+    CPU:
+      compute_power: 1.0
+      energy_efficiency: 0.8
+      memory: 4096
+    GPU:
+      compute_power: 3.0
+      energy_efficiency: 0.6
+      memory: 8192

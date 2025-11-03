@@ -1,0 +1,5 @@
+# .gitignore
+.idea/  # 忽略IDE配置文件夹
+__pycache__/  # 忽略Python编译缓存
+*.pyc  # 忽略.pyc编译文件
+venv/  # 忽略虚拟环境（如果有的话）
